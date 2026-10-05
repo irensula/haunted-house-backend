@@ -365,3 +365,4 @@ C:\Users\irens\source\repos\GameBackend\obj\Debug\net10.0\refint\GameBackend.dll
 C:\Users\irens\source\repos\GameBackend\obj\Debug\net10.0\GameBackend.pdb
 C:\Users\irens\source\repos\GameBackend\obj\Debug\net10.0\GameBackend.genruntimeconfig.cache
 C:\Users\irens\source\repos\GameBackend\obj\Debug\net10.0\ref\GameBackend.dll
+C:\Users\irens\source\repos\GameBackend\obj\Debug\net10.0\GameBackend.sourcelink.json

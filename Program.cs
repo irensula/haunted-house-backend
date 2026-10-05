@@ -11,6 +11,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<GameDbContext>(options => options.UseNpgsql(connectionString));
 
+builder.Services.AddControllers();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -21,16 +23,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
-
-app.MapGet("/api/game", () =>
-{
-    return new
-    {
-        name = "Haunted House",
-        version = "1.0.0",
-        status = "online"
-    };
-});
+app.MapControllers();
 
 app.Run();
