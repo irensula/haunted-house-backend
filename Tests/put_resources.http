@@ -1,0 +1,8 @@
+PUT http://localhost:5237/api/player/1/resources
+Content-Type: application/json
+
+{
+  "coins": 125,
+  "diamonds": 8,
+  "health": 4
+}

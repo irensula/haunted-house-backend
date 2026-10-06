@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: gamebackend-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gamebackend
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - gamebackend_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  gamebackend_postgres_data:

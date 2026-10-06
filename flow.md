@@ -530,3 +530,7 @@ Railway PostgreSQL
 dotnet build
 dotnet ef dbcontext list
 dotnet ef migrations add AddPlayerResourcesAndScenes
+
+## docker
+
+docker exec -it gamebackend-postgres psql -U postgres -d gamebackend
