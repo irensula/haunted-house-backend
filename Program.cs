@@ -1,6 +1,10 @@
 using GameBackend.Data;
 using GameBackend.Seeds;
 using Microsoft.EntityFrameworkCore;
+using GameBackend.Configuration;
+using GameBackend.Services;
+using Microsoft.AspNetCore.Identity;
+using GameBackend.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +17,24 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<GameDbContext>(options => options.UseNpgsql(connectionString));
 
 builder.Services.AddControllers();
+
+builder.Services
+    .AddOptions<ResendOptions>()
+    .Bind(builder.Configuration.GetSection(ResendOptions.SectionName))
+    .Validate(options =>
+        !string.IsNullOrWhiteSpace(options.ApiKey) &&
+        !string.IsNullOrWhiteSpace(options.FromEmail) &&
+        !string.IsNullOrWhiteSpace(options.FromName) &&
+        Uri.TryCreate(options.ApiUrl, UriKind.Absolute, out var uri) &&
+        uri.Scheme == Uri.UriSchemeHttps,
+        "Resend configuration is invalid.")
+    .ValidateOnStart();
+
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+builder.Services.AddHttpClient<EmailService>();
+
+builder.Services.AddScoped<AuthService>();
 
 var app = builder.Build();
 

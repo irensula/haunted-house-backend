@@ -394,15 +394,18 @@ POST /api/auth/verify-email
 POST /api/auth/login
 POST /api/auth/forgot-password
 POST /api/auth/reset-password
+
 Game save
 GET  /api/game/save
 POST /api/game/progress
 POST /api/game/round-complete
+
 Player information
 GET /api/player
 GET /api/player/statistics
 GET /api/player/achievements
 GET /api/player/items
+
 Leaderboard
 GET /api/leaderboard
 
