@@ -1,5 +1,7 @@
+using GameBackend.DTOs;
 using GameBackend.DTOs.Auth;
 using GameBackend.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameBackend.Controllers;
@@ -61,5 +63,23 @@ public class AuthController : ControllerBase
             cancellationToken);
 
         return Ok(response);
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(
+        [FromBody] LoginRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await _authService.LoginAsync(request, cancellationToken);
+            return Ok(response);
+        } catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        } catch (InvalidOperationException ex)
+        {
+            return StatusCode(403, new { message = ex.Message });
+        }
     }
 }

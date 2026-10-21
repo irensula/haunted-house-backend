@@ -201,4 +201,52 @@ public class AuthService
 
         return response;
     }
+
+    public async Task<AuthResponse> LoginAsync(
+        LoginRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        // find user by username or email
+        var login = request.UsernameOrEmail.Trim();
+
+        var user = await _context.Users.FirstOrDefaultAsync(
+            u => u.Username.ToLower() == login.ToLower() 
+                || u.Email.ToLower() == login.ToLower(),
+                cancellationToken);
+
+        if (user is null)
+        {
+            throw new UnauthorizedAccessException("Invalid username/email or password");
+        }
+
+        // verify password
+        var result = _passwordHasher.VerifyHashedPassword(
+            user, user.PasswordHash, request.Password);
+
+        if (result == PasswordVerificationResult.Failed){
+            throw new UnauthorizedAccessException("Invalid username/enmil or password");
+        }
+
+        // require email verification before login
+        if (!user.EmailConfirmed)
+        {
+            throw new InvalidOperationException("Please verify your email before logging in");
+        }
+
+        // update last login time
+        user.LastLoginAt = DateTime.UtcNow;
+
+        // save changes including a possible upgraded password hash
+        if (result == PasswordVerificationResult.SuccessRehashNeeded)
+        {
+            user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return new AuthResponse
+        {
+            Message = "Login successful"
+        };
+    }
 }

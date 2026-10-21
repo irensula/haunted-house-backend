@@ -534,6 +534,8 @@ dotnet build
 dotnet ef dbcontext list
 dotnet ef migrations add AddPlayerResourcesAndScenes
 
+dotnet add package Swashbuckle.AspNetCore
+
 ## docker
 
 docker exec -it gamebackend-postgres psql -U postgres -d gamebackend
