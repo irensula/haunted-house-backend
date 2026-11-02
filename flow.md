@@ -389,11 +389,11 @@ These contain real player data.
 After the database is ready, start building the API.
 
 Authentication
-POST /api/auth/register
-POST /api/auth/verify-email
-POST /api/auth/login
-POST /api/auth/forgot-password
-POST /api/auth/reset-password
+POST /api/auth/register +
+POST /api/auth/verify-email +
+POST /api/auth/login +
+POST /api/auth/forgot-password +
+POST /api/auth/reset-password +
 
 Game save
 GET  /api/game/save
@@ -535,14 +535,17 @@ dotnet build
 ### Run the project
 dotnet run
 
-### Builds and starts the GameBackend API in Development mode. Uses the DLL to avoid Windows blocking the generated .exe.
-.\run-dev.ps1
-
 dotnet ef dbcontext list
 dotnet ef migrations add AddPlayerResourcesAndScenes
 
 dotnet add package Swashbuckle.AspNetCore
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer --version 10.0.1
 
 ## docker
 
 docker exec -it gamebackend-postgres psql -U postgres -d gamebackend
+
+docker compose build api
+docker compose up -d --no-deps api
+
+docker compose restart api

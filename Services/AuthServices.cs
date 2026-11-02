@@ -4,7 +4,6 @@ using GameBackend.Configuration;
 using GameBackend.Data;
 using GameBackend.DTOs.Auth;
 using GameBackend.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -17,17 +16,20 @@ public class AuthService
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly EmailService _emailService;
     private readonly ResendOptions _options;
+    private readonly TokenService _tokenService;
 
     public AuthService(
         GameDbContext context,
         IPasswordHasher<User> passwordHasher,
         EmailService emailService,
-        IOptions<ResendOptions> options)
+        IOptions<ResendOptions> options,
+        TokenService tokenService)
     {
         _context = context;
         _passwordHasher = passwordHasher;
         _emailService = emailService;
         _options = options.Value;
+        _tokenService = tokenService;
     }
 
     public async Task<AuthResponse> RegisterAsync(
@@ -245,9 +247,12 @@ public class AuthService
 
         await _context.SaveChangesAsync(cancellationToken);
 
+        var token = _tokenService.GenerateToken(user);
+
         return new AuthResponse
         {
-            Message = "Login successful"
+            Message = "Login successful",
+            Token = token
         };
     }
 
@@ -351,5 +356,4 @@ public class AuthService
 
         return true;
     }
-    
 }

@@ -5,6 +5,9 @@ using GameBackend.Configuration;
 using GameBackend.Services;
 using Microsoft.AspNetCore.Identity;
 using GameBackend.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,9 +36,23 @@ builder.Services
         "Resend configuration is invalid.")
     .ValidateOnStart();
 
+builder.Services    
+    .AddOptions<JwtOptions>()
+    .Bind(builder.Configuration.GetSection(JwtOptions.SectionName))
+    .Validate(options => 
+        !string.IsNullOrWhiteSpace(options.Secret) &&
+        options.Secret.Length >= 32 &&
+        !string.IsNullOrWhiteSpace(options.Issuer) &&
+        !string.IsNullOrWhiteSpace(options.Audience) &&
+        options.ExpirationMinutes > 0,
+        "JWT configuration is invalid")
+    .ValidateOnStart();
+
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddHttpClient<EmailService>();
+
+builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddScoped<AuthService>();
 
