@@ -1,0 +1,40 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+*.sln.iml
+
+# VS Code
+.vscode/
+
+# User-specific configuration and secrets
+appsettings.Development.json
+appsettings.*.local.json
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Test results
+TestResults/
+coverage/
+
+# Docker
+.docker/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

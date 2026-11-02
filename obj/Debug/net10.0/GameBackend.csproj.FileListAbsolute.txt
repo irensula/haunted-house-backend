@@ -369,3 +369,5 @@ C:\Users\irens\source\repos\GameBackend\obj\Debug\net10.0\GameBackend.sourcelink
 C:\Users\irens\source\repos\GameBackend\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\irens\source\repos\GameBackend\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\irens\source\repos\GameBackend\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\irens\source\repos\GameBackend\bin\Debug\net10.0\GameBackend.staticwebassets.runtime.json
+C:\Users\irens\source\repos\GameBackend\obj\Debug\net10.0\compressed\5vww860jcl-{0}-07anpbqox1-07anpbqox1.gz

@@ -12,5 +12,18 @@ services:
     volumes:
       - gamebackend_postgres_data:/var/lib/postgresql/data
 
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gamebackend-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "5237:8080"
+    depends_on:
+      - postgres
+
 volumes:
   gamebackend_postgres_data:

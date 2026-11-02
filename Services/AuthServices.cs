@@ -4,6 +4,7 @@ using GameBackend.Configuration;
 using GameBackend.Data;
 using GameBackend.DTOs.Auth;
 using GameBackend.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -249,4 +250,106 @@ public class AuthService
             Message = "Login successful"
         };
     }
+
+    public async Task<AuthResponse> ForgotPasswordAsync(
+        ForgotPasswordRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var email = request.Email.Trim().ToLowerInvariant();
+
+        // return the same message whether the account exists or not
+        var response = new AuthResponse
+        {
+            Message = "If an account exists for this email, a password reset link will be sent."
+        };
+
+        var user = await _context.Users.FirstOrDefaultAsync(
+            u => u.Email.ToLower() == email,
+            cancellationToken);
+
+        if (user is null)
+        {
+            return response;
+        }
+
+        // invalidate previous unused reset tokens
+        var previousTokens = await _context.PasswordResetTokens
+            .Where(t => t.UserId == user.Id && !t.Used)
+            .ToListAsync(cancellationToken);
+
+        foreach (var previousToken in previousTokens)
+        {
+            previousToken.Used = true;
+        }
+
+        var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+
+        var tokenHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rawToken)));
+
+        var resetToken = new PasswordResetToken
+        {
+            UserId = user.Id,
+            TokenHash = tokenHash,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(30),
+            Used = false
+        };
+
+        _context.PasswordResetTokens.Add(resetToken);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        var resetLink = $"{_options.PasswordResetUrl}?token={Uri.EscapeDataString(rawToken)}";
+
+        var safeLink = System.Net.WebUtility.HtmlEncode(resetLink);
+
+        var html = $"""
+            <h1>Password reset</h1>
+            <p>We received a request to reset your Haunted House password.</p>
+            <p><a href="{safeLink}">Reset password</a></p>
+            <p>This link expires in 30 minutes.</p>
+            <p>If you did not request a password reset, you can ignore this email.</p>
+        """;
+
+        await _emailService.SendEmailAsync(
+            user.Email, 
+            "Reset your Haunted House password", 
+            html, 
+            cancellationToken);
+
+        return response;
+    }
+
+    public async Task<bool> ResetPasswordAsync(
+        ResetPasswordRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(request.Token) || 
+            string.IsNullOrWhiteSpace(request.NewPassword))
+        {
+            return false;
+        }
+
+        var tokenHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Token)));
+
+        var resetToken = await _context.PasswordResetTokens
+            .Include(t => t.User)
+            .FirstOrDefaultAsync(t => t.TokenHash == tokenHash,
+            cancellationToken);
+
+        if (resetToken is null || resetToken.Used || resetToken.ExpiresAt <= DateTime.UtcNow)
+        {
+            return false;
+        }
+
+        // hash and update new password
+        resetToken.User.PasswordHash = _passwordHasher.HashPassword(
+            resetToken.User,
+            request.NewPassword);
+
+        resetToken.Used = true;
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
+    
 }

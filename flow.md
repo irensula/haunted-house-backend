@@ -531,6 +531,13 @@ Railway PostgreSQL
 
 
 dotnet build
+
+### Run the project
+dotnet run
+
+### Builds and starts the GameBackend API in Development mode. Uses the DLL to avoid Windows blocking the generated .exe.
+.\run-dev.ps1
+
 dotnet ef dbcontext list
 dotnet ef migrations add AddPlayerResourcesAndScenes
 

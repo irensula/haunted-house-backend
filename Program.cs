@@ -14,6 +14,9 @@ builder.Services.AddOpenApi();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+Console.WriteLine(
+    $"DefaultConnection configured: {!string.IsNullOrWhiteSpace(connectionString)}");
+
 builder.Services.AddDbContext<GameDbContext>(options => options.UseNpgsql(connectionString));
 
 builder.Services.AddControllers();
@@ -56,6 +59,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.MapControllers();
 

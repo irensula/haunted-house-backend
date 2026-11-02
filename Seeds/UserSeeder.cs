@@ -68,7 +68,7 @@ public static class UserSeeder
         var passwordResetToken = new PasswordResetToken
         {
             UserId = user.Id,
-            Token = "PasswordResetToken",
+            TokenHash = "PasswordResetToken",
             ExpiresAt = DateTime.UtcNow.AddDays(7),
             Used = true,
         };

@@ -3,6 +3,7 @@ using GameBackend.DTOs.Auth;
 using GameBackend.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 
 namespace GameBackend.Controllers;
 
@@ -81,5 +82,47 @@ public class AuthController : ControllerBase
         {
             return StatusCode(403, new { message = ex.Message });
         }
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await _authService.ForgotPasswordAsync(request, cancellationToken);
+        
+        return Ok(response);
+    }
+
+    [HttpGet("/reset-password")]
+    public IActionResult ResetPasswordPage()
+    {
+        var filePath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "wwwroot",
+            "reset-password.html");
+
+        return PhysicalFile(filePath, "text/html");
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var success = await _authService.ResetPasswordAsync(request, cancellationToken);
+        
+        if (!success)
+        {
+            return BadRequest(new
+            {
+                message = "The password reset link is invalid or has expired"
+            });
+        }
+
+        return Ok(new
+        {
+            message = "Password has been reset successfully"
+        });
     }
 }

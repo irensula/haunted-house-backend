@@ -9,4 +9,6 @@ public class ResendOptions
     public string FromName { get; set; } = string.Empty;
     public string ApiUrl { get; set; } = string.Empty;
     public string VerificationUrl { get; set; } = string.Empty;
+
+    public string PasswordResetUrl { get; set; } = string.Empty;
 }
