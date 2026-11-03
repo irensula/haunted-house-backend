@@ -1,10 +1,13 @@
+using System.Security.Claims;
 using GameBackend.Data;
 using GameBackend.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GameBackend.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class PlayerController : ControllerBase
@@ -17,12 +20,19 @@ public class PlayerController : ControllerBase
     }
 
     // get user
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetPlayer(int id)
+    [HttpGet("profile")]
+    public async Task<IActionResult> GetPlayer()
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
         var player = await _context.Users
             .Include(u => u.Resources)
-            .FirstOrDefaultAsync(u => u.Id == id);
+            .FirstOrDefaultAsync(u => u.Id == int.Parse(userId));
 
         if (player == null)
         {
@@ -48,14 +58,19 @@ public class PlayerController : ControllerBase
     }
 
     // update player's resources
-    [HttpPut("{id}/resources")]
-    public async Task<IActionResult> UpdateResources(
-        int id,
-        UpdatePlayerResourcesRequest request)
+    [HttpPut("resources")]
+    public async Task<IActionResult> UpdateResources(UpdatePlayerResourcesRequest request)
     {
-        var player = await _context.Users
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+         var player = await _context.Users
             .Include(u => u.Resources)
-            .FirstOrDefaultAsync(u => u.Id == id);
+            .FirstOrDefaultAsync(u => u.Id == int.Parse(userId));
 
         if (player == null)
         {
@@ -86,6 +101,4 @@ public class PlayerController : ControllerBase
             player.Resources.UpdatedAt
         });
     }
-
-
 }

@@ -68,6 +68,12 @@ public class AuthService
             CreatedAt = DateTime.UtcNow
         };
 
+        user.Resources = new PlayerResources
+        {
+            Coins = 0,
+            Diamonds = 0
+        };
+
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
 
         var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
