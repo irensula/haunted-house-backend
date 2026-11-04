@@ -5,6 +5,7 @@ public class Scene
     public int Id { get; set; }
     public int Number { get; set; }
     public string Name { get; set; } = string.Empty;
+    public ICollection<Item> Items { get; set; } = new List<Item>();
 
     // Mavigation property
     public ICollection<SceneProgress> SceneProgress { get; set; } = new List<SceneProgress>();

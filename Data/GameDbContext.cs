@@ -55,6 +55,12 @@ public class GameDbContext : DbContext
                 "CK_PlayerResources_Health",
                 "\"Health\" >= 0 AND \"Health\" <= 5"
             ));
+
+        modelBuilder.Entity<Item>()
+            .HasOne(i => i.Scene)
+            .WithMany(s => s.Items)
+            .HasForeignKey(i => i.SceneId)
+            .OnDelete(DeleteBehavior.Cascade);
         
         // User - PlayerItem (1 : many)
         modelBuilder.Entity<PlayerItem>()

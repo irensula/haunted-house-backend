@@ -1,9 +1,10 @@
 using System.Security.Claims;
 using GameBackend.Data;
-using GameBackend.DTOs;
+using GameBackend.DTOs.Player;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using GameBackend.Models;
 
 namespace GameBackend.Controllers;
 
@@ -99,6 +100,61 @@ public class PlayerController : ControllerBase
             player.Resources.Diamonds,
             player.Resources.Health,
             player.Resources.UpdatedAt
+        });
+    }
+
+    // add player item
+    [HttpPost("player-items")]
+    public async Task<IActionResult> AddPlayerItem(AddPlayerItemRequest request)
+    {
+        // get UserId from JWT
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!int.TryParse(userId, out var parsedUserId))
+        {
+            return Unauthorized();
+        }
+        // find player
+        var player = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == parsedUserId);
+
+        if (player == null)
+        {
+            return NotFound();
+        }
+        // find item
+        var item = await _context.Items
+            .FirstOrDefaultAsync(i => i.Id == request.ItemId);
+
+        if (item == null)
+        {
+            return NotFound("Item not found.");
+        }
+        // check if player has this item already
+        var alreadyHasItem = await _context.PlayerItems 
+            .AnyAsync(p => p.UserId == player.Id && p.ItemId == item.Id);
+
+        if (alreadyHasItem)
+        {
+            return BadRequest("Player already has this item");
+        }
+        // add item to PlayerItems
+        var playerItem = new PlayerItem
+        {
+            UserId = player.Id,
+            ItemId = item.Id,
+            FoundAt = DateTime.UtcNow
+        };
+        
+        _context.PlayerItems.Add(playerItem);
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            Message = "Item added successfully.",
+            Item = item.Name,
+            playerItem.FoundAt
         });
     }
 }

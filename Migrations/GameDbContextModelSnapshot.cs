@@ -87,7 +87,12 @@ namespace GameBackend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("SceneId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("SceneId");
 
                     b.ToTable("Items");
                 });
@@ -312,6 +317,17 @@ namespace GameBackend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("GameBackend.Models.Item", b =>
+                {
+                    b.HasOne("GameBackend.Models.Scene", "Scene")
+                        .WithMany("Items")
+                        .HasForeignKey("SceneId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Scene");
+                });
+
             modelBuilder.Entity("GameBackend.Models.PasswordResetToken", b =>
                 {
                     b.HasOne("GameBackend.Models.User", "User")
@@ -403,6 +419,8 @@ namespace GameBackend.Migrations
 
             modelBuilder.Entity("GameBackend.Models.Scene", b =>
                 {
+                    b.Navigation("Items");
+
                     b.Navigation("SceneProgress");
                 });
 

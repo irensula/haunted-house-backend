@@ -401,7 +401,8 @@ POST /api/game/progress
 POST /api/game/round-complete
 
 Player information
-GET /api/player
+GET /api/player +
+PUT /api/player/resources +
 GET /api/player/statistics
 GET /api/player/achievements
 GET /api/player/items
@@ -549,3 +550,5 @@ docker compose build api
 docker compose up -d --no-deps api
 
 docker compose restart api
+
+docker compose exec api dotnet ef migrations add AddSceneIdToItems

@@ -1,4 +1,4 @@
-namespace GameBackend.DTOs;
+namespace GameBackend.DTOs.Player;
 
 public class UpdatePlayerResourcesRequest
 {
