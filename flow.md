@@ -390,22 +390,29 @@ After the database is ready, start building the API.
 
 Authentication
 POST /api/auth/register +
-POST /api/auth/verify-email +
+GET /api/auth/verify-email +
+POST /api/auth/resend-verification +
 POST /api/auth/login +
 POST /api/auth/forgot-password +
+GET /reset-password +
 POST /api/auth/reset-password +
 
 Game save
-GET  /api/game/save
-POST /api/game/progress
-POST /api/game/round-complete
+GET /api/Game +
+GET  /api/Game/save
+POST /api/Game/progress
+POST /api/Game/round-complete +
+
+JwtTest
+GET /api/jwt-test +
 
 Player information
-GET /api/player +
-PUT /api/player/resources +
-GET /api/player/statistics
-GET /api/player/achievements
-GET /api/player/items
+GET /api/Player/profile +
+PUT /api/Player/resources +
+GET /api/Player/statistics
+GET /api/Player/achievements +
+GET /api/Player/player-items +
+POST /api/Player/player-items +
 
 Leaderboard
 GET /api/leaderboard

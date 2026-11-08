@@ -157,4 +157,66 @@ public class PlayerController : ControllerBase
             playerItem.FoundAt
         });
     }
+
+    // get user
+    [HttpGet("player-items")]
+    public async Task<IActionResult> GetPlayerItems()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var player = await _context.Users
+            .Include(u => u.PlayerItems)
+                .ThenInclude(pi => pi.Item)
+            .FirstOrDefaultAsync(u => u.Id == int.Parse(userId));
+
+        if (player == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new
+        {
+            Items = player.PlayerItems.Select(pi => new
+                {
+                    pi.Item.Id,
+                    pi.Item.Name,
+                    pi.Item.Description,
+                    pi.FoundAt
+                }) 
+        });
+    }
+
+    // get user
+    [HttpGet("player-achievements")]
+    public async Task<IActionResult> GetPlayerAchievements()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!int.TryParse(userId, out var parsedUserId))
+        {
+            return Unauthorized();
+        }
+
+        var achievements = await _context.PlayerAchievements
+            .Where(pa => pa.UserId == parsedUserId)
+            .Include(pa => pa.Achievement)
+            .Select(pa =>  new
+                {
+                    pa.Achievement.Id,
+                    pa.Achievement.Name,
+                    pa.Achievement.Description,
+                    pa.UnlockedAt
+                })
+            .ToListAsync();
+
+        return Ok(new
+        {
+            Achievements = achievements
+        });
+    }
 }
