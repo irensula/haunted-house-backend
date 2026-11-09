@@ -401,6 +401,7 @@ Game save
 GET /api/Game +
 GET  /api/Game/save
 POST /api/Game/progress
+GET /api/Game/progress
 POST /api/Game/round-complete +
 
 JwtTest
@@ -559,3 +560,13 @@ docker compose up -d --no-deps api
 docker compose restart api
 
 docker compose exec api dotnet ef migrations add AddSceneIdToItems
+
+## Create migration
+
+.\add-migration.ps1 RenameCurrentRoundToCurrentStage
+
+## Update db
+.\update-db.ps1
+
+## dotnet restore GameBackend.csproj
+.\restore.ps1

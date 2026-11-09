@@ -244,8 +244,11 @@ namespace GameBackend.Migrations
                     b.Property<bool>("Completed")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("CurrentRound")
+                    b.Property<int>("CurrentStage")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("DoorOpened")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("SceneId")
                         .HasColumnType("integer");

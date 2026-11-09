@@ -32,8 +32,8 @@ public class GameController : ControllerBase
     }
 
     // update scene
-    [HttpPost("round-completed")]
-    public async Task<IActionResult> CompleteRound(UpdateSceneProgressRequest request)
+    [HttpPost("stage-completed")]
+    public async Task<IActionResult> CompleteStage(UpdateSceneProgressRequest request)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -60,11 +60,12 @@ public class GameController : ControllerBase
             return NotFound("Scene not found.");
         }
 
-        const int totalRounds = 3;
+        // check battle stages
+        const int totalBattleStages = 3;
 
-        if (request.CompletedRound < 1 || request.CompletedRound > totalRounds)
+        if (request.CompletedStage < 1 || request.CompletedStage > totalBattleStages)
         {
-            return BadRequest("Invalid round number.");
+            return BadRequest("Invalid stage number.");
         }
 
         // find player's progress in the scene
@@ -75,16 +76,16 @@ public class GameController : ControllerBase
 
         if (progress == null)
         {
-            if (request.CompletedRound != 1)
+            if (request.CompletedStage != 1)
             {
-                return BadRequest("You must complete the previous round first.");
+                return BadRequest("You must complete the previous stage first.");
             }
 
             progress = new SceneProgress
             {
                 UserId = player.Id,
                 SceneId = request.SceneId,
-                CurrentRound = 1,
+                CurrentStage = 1,
                 Completed = false,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -92,13 +93,13 @@ public class GameController : ControllerBase
             _context.SceneProgresses.Add(progress);
         } else
         {
-            if (request.CompletedRound != progress.CurrentRound + 1)
+            if (request.CompletedStage != progress.CurrentStage + 1)
             {
-                return BadRequest("Invalid round sequence.");
+                return BadRequest("Invalid stage sequence.");
             }
 
-            progress.CurrentRound = request.CompletedRound;
-            progress.Completed = progress.CurrentRound == totalRounds;
+            progress.CurrentStage = request.CompletedStage;
+            progress.Completed = false;
             progress.UpdatedAt = DateTime.UtcNow;
         }
         
@@ -106,11 +107,44 @@ public class GameController : ControllerBase
 
         return Ok(new
         {
-            Message = "Round completed successfully.",
+            Message = "Stage completed successfully.",
             progress.SceneId,
-            progress.CurrentRound,
+            progress.CurrentStage,
             progress.Completed,
             progress.UpdatedAt
         });
     }
+
+    // get progress
+    [HttpGet("progress")]
+    public async Task<IActionResult> GetProgress()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!int.TryParse(userId, out var parsedUserId))
+        {
+            return Unauthorized();
+        }
+
+        var progress = await _context.SceneProgresses
+            .Where(p => p.UserId == parsedUserId)
+            .Select(p =>  new
+                {
+                    p.Id,
+                    p.SceneId,
+                    SceneName = p.Scene.Name,
+                    SceneNumber = p.Scene.Number,
+                    p.CurrentStage,
+                    p.Completed,
+                    p.DoorOpened,
+                    p.UpdatedAt
+                })
+            .ToListAsync();
+
+        return Ok(new
+        {
+            Progress = progress
+        });
+    }
+
 }

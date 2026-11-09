@@ -87,12 +87,52 @@ public class PlayerController : ControllerBase
         {
             return BadRequest("Health must be between 0 and 5");
         }
+
+        if (request.Coins < 0 || request.Diamonds < 0)
+        {
+            return BadRequest("Coins and diamonds cannot be negative");
+        }
+
         player.Resources.Coins = request.Coins;
         player.Resources.Diamonds = request.Diamonds;
         player.Resources.Health = request.Health;
         player.Resources.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            player.Resources.Coins,
+            player.Resources.Diamonds,
+            player.Resources.Health,
+            player.Resources.UpdatedAt
+        });
+    }
+
+    // get user
+    [HttpGet("resources")]
+    public async Task<IActionResult> GetPlayerResources()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!int.TryParse(userId, out var parsedUserId))
+        {
+            return Unauthorized();
+        }
+
+        var player = await _context.Users
+            .Include(u => u.Resources)
+            .FirstOrDefaultAsync(u => u.Id == int.Parse(userId));
+
+        if (player == null)
+        {
+            return NotFound();
+        }
+
+        if (player.Resources == null)
+        {
+            return NotFound("Player resources not found.");
+        }
 
         return Ok(new
         {
@@ -157,6 +197,7 @@ public class PlayerController : ControllerBase
             playerItem.FoundAt
         });
     }
+    
 
     // get user
     [HttpGet("player-items")]
@@ -184,6 +225,7 @@ public class PlayerController : ControllerBase
             Items = player.PlayerItems.Select(pi => new
                 {
                     pi.Item.Id,
+                    pi.Item.SceneId,
                     pi.Item.Name,
                     pi.Item.Description,
                     pi.FoundAt
@@ -219,4 +261,22 @@ public class PlayerController : ControllerBase
             Achievements = achievements
         });
     }
+
+    // [HttpGet("items-collected")]
+    // // check gathered items 
+    // var sceneItems = await _context.PlayerItems
+    //     .Where(pi =>
+    //         pi.UserId == player.Id &&
+    //         pi.Item.SceneId == request.SceneId)
+    //     .CountAsync();
+
+    // var totalSceneItems = await _context.Items
+    //     .CountAsync(i => i.SceneId == request.SceneId);
+
+    // if (sceneItems != totalSceneItems)
+    // {
+    //     return BadRequest("You haven't collected all items in this scene.");
+    // }
+
+    // bool allItemsCollected = sceneItems == totalSceneItems;
 }

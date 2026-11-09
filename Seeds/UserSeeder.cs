@@ -34,8 +34,8 @@ public static class UserSeeder
         var progress = new SceneProgress { 
             UserId = user.Id,
             SceneId = 1,
-            CurrentRound = 3,
-            Completed = true,
+            CurrentStage = 3,
+            Completed = false,
             UpdatedAt = DateTime.UtcNow
         };
 
