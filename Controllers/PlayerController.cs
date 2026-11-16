@@ -53,6 +53,7 @@ public class PlayerController : ControllerBase
                     player.Resources.Coins,
                     player.Resources.Diamonds,
                     player.Resources.Health,
+                    player.Resources.UndeadDefeated,
                     player.Resources.UpdatedAt
                 } 
         });
@@ -96,6 +97,7 @@ public class PlayerController : ControllerBase
         player.Resources.Coins = request.Coins;
         player.Resources.Diamonds = request.Diamonds;
         player.Resources.Health = request.Health;
+        player.Resources.UndeadDefeated = request.UndeadDefeated;
         player.Resources.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
@@ -105,6 +107,7 @@ public class PlayerController : ControllerBase
             player.Resources.Coins,
             player.Resources.Diamonds,
             player.Resources.Health,
+            player.Resources.UndeadDefeated,
             player.Resources.UpdatedAt
         });
     }
@@ -139,6 +142,7 @@ public class PlayerController : ControllerBase
             player.Resources.Coins,
             player.Resources.Diamonds,
             player.Resources.Health,
+            player.Resources.UndeadDefeated,
             player.Resources.UpdatedAt
         });
     }

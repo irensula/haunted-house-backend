@@ -1,1 +1,3 @@
-dotnet restore GameBackend.csproj
+$ProjectPath = Split-Path -Parent $PSScriptRoot
+
+dotnet restore "$ProjectPath/GameBackend.csproj"

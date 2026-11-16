@@ -399,10 +399,9 @@ POST /api/auth/reset-password +
 
 Game save
 GET /api/Game +
-GET  /api/Game/save
-POST /api/Game/progress
-GET /api/Game/progress
-POST /api/Game/round-complete +
+POST /api/Game/stage-completed +
+GET /api/Game/progress +
+POST /api/Game/open-door
 
 JwtTest
 GET /api/jwt-test +
@@ -410,10 +409,12 @@ GET /api/jwt-test +
 Player information
 GET /api/Player/profile +
 PUT /api/Player/resources +
-GET /api/Player/statistics
-GET /api/Player/achievements +
+GET /api/Player/resources +
 GET /api/Player/player-items +
 POST /api/Player/player-items +
+GET /api/Player/player-achievements +
+
+GET /api/Player/statistics
 
 Leaderboard
 GET /api/leaderboard
@@ -563,7 +564,7 @@ docker compose exec api dotnet ef migrations add AddSceneIdToItems
 
 ## Create migration
 
-.\add-migration.ps1 RenameCurrentRoundToCurrentStage
+.\add-migration.ps1 AddUndeadDefeatedToResources
 
 ## Update db
 .\update-db.ps1

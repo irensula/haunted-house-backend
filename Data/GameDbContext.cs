@@ -1,3 +1,4 @@
+using System.Runtime.Intrinsics.X86;
 using GameBackend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,7 @@ public class GameDbContext : DbContext
     public DbSet<PlayerAchievement> PlayerAchievements { get; set; }
     public DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+    public DbSet<SceneStage> SceneStages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -120,6 +122,10 @@ public class GameDbContext : DbContext
 
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Email)
+            .IsUnique();
+
+        modelBuilder.Entity<SceneStage>()
+            .HasIndex(ss => new { ss.SceneId, ss.StageNumber })
             .IsUnique();
     }   
 }

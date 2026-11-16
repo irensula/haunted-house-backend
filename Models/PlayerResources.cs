@@ -7,6 +7,7 @@ public class PlayerResources
     public int Coins { get; set; }
     public int Diamonds { get; set; }
     public int Health { get; set; } = 5;
+    public int UndeadDefeated { get; set; } = 0;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     
     // Navigation property

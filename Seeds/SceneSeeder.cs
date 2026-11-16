@@ -7,15 +7,32 @@ namespace GameBackend.Seeds;
 public static class SceneSeeder
 {
     public static async Task SeedAsync(GameDbContext context)
-    {
-        if (await context.Scenes.AnyAsync()) return; 
+    { 
         // User seed
-        var scene = new Scene { 
-            Number = 1,
-            Name = "Garden",
+        var scenes = new List<Scene> { 
+            new Scene
+            {
+                Number = 1,
+                Name = "Garden"
+            },
+            new Scene
+            {
+                Number = 2,
+                Name = "Second Garden"
+            }
         };
 
-        context.Scenes.Add(scene);
+        foreach (var scene in scenes)
+        {
+            var exists = await context.Scenes.AnyAsync(
+                s => s.Number == scene.Number
+            );
+
+            if (!exists)
+            {
+                context.Scenes.Add(scene);
+            }
+        }
         
         await context.SaveChangesAsync();
     }

@@ -196,6 +196,9 @@ namespace GameBackend.Migrations
                     b.Property<int>("Health")
                         .HasColumnType("integer");
 
+                    b.Property<int>("UndeadDefeated")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -267,6 +270,37 @@ namespace GameBackend.Migrations
                         .IsUnique();
 
                     b.ToTable("SceneProgresses");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.SceneStage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("SceneId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StageNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalCoins")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalDiamonds")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalUndead")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SceneId", "StageNumber")
+                        .IsUnique();
+
+                    b.ToTable("SceneStages");
                 });
 
             modelBuilder.Entity("GameBackend.Models.User", b =>
@@ -408,6 +442,17 @@ namespace GameBackend.Migrations
                     b.Navigation("Scene");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.SceneStage", b =>
+                {
+                    b.HasOne("GameBackend.Models.Scene", "Scene")
+                        .WithMany()
+                        .HasForeignKey("SceneId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Scene");
                 });
 
             modelBuilder.Entity("GameBackend.Models.Achievement", b =>
