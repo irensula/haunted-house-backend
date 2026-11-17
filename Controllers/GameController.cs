@@ -61,7 +61,7 @@ public class GameController : ControllerBase
             return NotFound("Scene not found.");
         }
 
-        // check battle stages
+        // check stage number
         const int totalBattleStages = 3;
 
         if (request.CompletedStage < 1 || request.CompletedStage > totalBattleStages)
@@ -69,11 +69,30 @@ public class GameController : ControllerBase
             return BadRequest("Invalid stage number.");
         }
 
-        // find player's progress in the scene
+        // find stage configuration
+        var stage = await _context.SceneStages
+            .FirstOrDefaultAsync(s =>
+                s.SceneId == request.SceneId &&
+                s.StageNumber == request.CompletedStage);
+
+        if (stage == null)
+        {
+            return NotFound("Stage configuration not found");
+        }
+
+        // check collected resouces
+        if (request.UndeadDefeated != stage.TotalUndead ||
+            request.CoinsCollected != stage.TotalCoins ||
+            request.DiamondsCollected != stage.TotalDiamonds)
+        {
+            return BadRequest("Stage requirements not completed");
+        }
+
+        // find player's progress
         var progress = await _context.SceneProgresses
             .FirstOrDefaultAsync(s => 
-            s.UserId == player.Id &&
-            s.SceneId == request.SceneId);
+                s.UserId == player.Id &&
+                s.SceneId == request.SceneId);
 
         if (progress == null)
         {
@@ -86,14 +105,20 @@ public class GameController : ControllerBase
             {
                 UserId = player.Id,
                 SceneId = request.SceneId,
-                CurrentStage = 1,
+                CurrentStage = 2,
                 Completed = false,
                 UpdatedAt = DateTime.UtcNow
             };
 
             _context.SceneProgresses.Add(progress);
-        } else
+        } 
+        else
         {
+            if (progress.Completed)
+            {
+                return BadRequest("Scene already completed");
+            }
+
             if (request.CompletedStage != progress.CurrentStage)
             {
                 return BadRequest("Invalid stage sequence.");
@@ -107,17 +132,35 @@ public class GameController : ControllerBase
             {
                 progress.CurrentStage = request.CompletedStage + 1;
             }
-            progress.UpdatedAt = DateTime.UtcNow;
-        }
-        
-        await _context.SaveChangesAsync();
 
+            progress.UpdatedAt = DateTime.UtcNow;    
+        }
+
+        // update player resources
+        var resources = await _context.PlayerResources
+            .FirstOrDefaultAsync(r => r.UserId == player.Id);
+
+        if (resources == null)
+        {
+            return NotFound("Player recources not found");
+        }
+
+        resources.Coins += request.CoinsCollected;
+        resources.Diamonds += request.DiamondsCollected;
+        resources.UndeadDefeated += request.UndeadDefeated;
+        resources.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+    
         return Ok(new
         {
             Message = "Stage completed successfully.",
             progress.SceneId,
             progress.CurrentStage,
             progress.Completed,
+            resources.Coins,
+            resources.Diamonds,
+            resources.UndeadDefeated,
             progress.UpdatedAt
         });
     }

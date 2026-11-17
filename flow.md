@@ -571,3 +571,5 @@ docker compose exec api dotnet ef migrations add AddSceneIdToItems
 
 ## dotnet restore GameBackend.csproj
 .\restore.ps1
+
+!!! delete put player-resources
