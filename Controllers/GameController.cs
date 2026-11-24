@@ -250,6 +250,11 @@ public class GameController : ControllerBase
         var totalItems = await _context.Items
             .CountAsync(i => i.SceneId == request.SceneId);
 
+        if (totalItems != 5)
+        {
+            return StatusCode(500, "Scene items configuration is incorrect.");
+        }
+
         // get player's collected scene items
         var collectedItems = await _context.PlayerItems
             .CountAsync(pi =>
@@ -272,5 +277,4 @@ public class GameController : ControllerBase
             progress.UpdatedAt
         });
     }
-
 }

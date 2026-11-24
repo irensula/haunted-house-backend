@@ -174,6 +174,17 @@ public class PlayerController : ControllerBase
         {
             return NotFound("Item not found.");
         }
+
+        var progress = await _context.SceneProgresses
+            .FirstOrDefaultAsync(p =>
+                p.UserId == player.Id &&
+                p.SceneId == item.SceneId);
+
+        if (progress == null || !progress.Completed)
+        {
+            return BadRequest("Complete all three stages before collecting items");
+        } 
+
         // check if player has this item already
         var alreadyHasItem = await _context.PlayerItems 
             .AnyAsync(p => p.UserId == player.Id && p.ItemId == item.Id);
@@ -201,7 +212,6 @@ public class PlayerController : ControllerBase
             playerItem.FoundAt
         });
     }
-    
 
     // get user
     [HttpGet("player-items")]
